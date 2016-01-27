@@ -24,7 +24,7 @@ package fr.jstessier.rf24.exceptions;
  * 
  * @author J.S. TESSIER
  */
-public class WritePayloadMaxRetriesException extends RF24Exception {
+public class WritePayloadMaxRetriesException extends WritePayloadException {
 
 	private static final long serialVersionUID = -692171224533558703L;
 

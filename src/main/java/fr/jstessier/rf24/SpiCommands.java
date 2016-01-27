@@ -19,10 +19,6 @@ package fr.jstessier.rf24;
  * along with java-rf24. If not, see <http://www.gnu.org/licenses/lgpl-3.0.html>.
  */
 
-import fr.jstessier.rf24.annotations.Command;
-import fr.jstessier.rf24.annotations.LengthRange;
-import fr.jstessier.rf24.annotations.Mask;
-
 /**
  * SPI Commands to communicate with the nRF24L01+ module.
  * 
@@ -31,16 +27,63 @@ import fr.jstessier.rf24.annotations.Mask;
 public class SpiCommands {
 
 	/**
-	 * Marker interface for spi command.
-	 * To get command value.
+	 * Interface for spi command.
+	 * To get command value and min/max data length.
 	 */
-	public interface SpiCommand {}
+	public interface SpiCommandCommon {
+
+		/**
+		 * Return the data min length in Byte.
+		 * @return	The data min length.
+		 */
+		byte getDataMinLength();
+
+		/**
+		 * Return the data mas length in Byte.
+		 * @return	The data max length.
+		 */
+		byte getDataMaxLength();
+
+		/**
+		 * Return the name of the SPI command.
+		 * @return
+		 */
+		String getName();
+	}
+	
+	/**
+	 * Interface for spi command.
+	 * To get command value and min/max data length.
+	 */
+	public interface SpiCommand extends SpiCommandCommon {
+
+		/**
+		 * Return the SPI command value.
+		 * @return	The SPI command value.
+		 */
+		byte getCommand();
+
+	}
 
 	/**
-	 * Marker interface for read / write spi command.
-	 * To get command and mask value.
+	 * Interface for read / write register spi command.
+	 * To get command register mask value.
 	 */
-	public interface SpiCommandReadWrite {}
+	public interface SpiCommandReadWriteRegister extends SpiCommandCommon {
+
+		/**
+		 * Return the SPI command value.
+		 * @return	The SPI command value.
+		 */
+		byte getBaseCommand();
+
+		/**
+		 * Return the mask to calculate SPI from register address. 
+		 * @return	The command register mask.
+		 */
+		byte getCommandRegisterMask();
+
+	}
 
 	/**
 	 * Read command and status registers.
@@ -49,10 +92,31 @@ public class SpiCommands {
 	 * 
 	 * Data bytes : 1 to 5 LSByte first.
 	 */
-	@Command(0b00000000)
-	@Mask(0b00011111)
-	@LengthRange(min = 1, max = 5)
-	public class R_REGISTER implements SpiCommandReadWrite {}
+	public static final RRegisterCommand R_REGISTER = new RRegisterCommand(); 
+
+	public static class RRegisterCommand implements SpiCommandReadWriteRegister {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getBaseCommand() { return 0b00000000; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommandRegisterMask() { return 0b00011111; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 5; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "R_REGISTER"; }
+
+	}
 
 	/**
 	 * Write command and status registers.
@@ -62,10 +126,31 @@ public class SpiCommands {
 	 * 
 	 * Data bytes : 1 to 5 LSByte first.
 	 */
-	@Command(0b00100000)
-	@Mask(0b00011111)
-	@LengthRange(min = 1, max = 5)
-	public class W_REGISTER implements SpiCommandReadWrite {}
+	public static final WRegisterCommand W_REGISTER = new WRegisterCommand(); 
+
+	public static class WRegisterCommand implements SpiCommandReadWriteRegister {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getBaseCommand() { return 0b00100000; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommandRegisterMask() { return 0b00011111; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 5; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "W_REGISTER"; }
+
+	}
 
 	/**
 	 * Read RX-payload: 1 – 32 bytes. 
@@ -74,9 +159,27 @@ public class SpiCommands {
 	 * 
 	 * Data bytes : 1 to 32 LSByte first.
 	 */
-	@Command(0b01100001)
-	@LengthRange(min = 1, max = 32)
-	public class R_RX_PAYLOAD implements SpiCommand {}
+	public static final RRxPayloadCommand R_RX_PAYLOAD = new RRxPayloadCommand(); 
+
+	public static class RRxPayloadCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return 0b01100001; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 32; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "R_RX_PAYLOAD"; }
+
+	}
 
 	/**
 	 * Write TX-payload: 1 – 32 bytes. 
@@ -84,18 +187,54 @@ public class SpiCommands {
 	 * 
 	 * Data bytes : 1 to 32 LSByte first.
 	 */
-	@Command((byte) 0b10100000)
-	@LengthRange(min = 1, max = 32)
-	public class W_TX_PAYLOAD implements SpiCommand {}
+	public static final WTxPayloadCommand W_TX_PAYLOAD = new WTxPayloadCommand(); 
+
+	public static class WTxPayloadCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b10100000; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 32; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "W_TX_PAYLOAD"; }
+
+	}
 
 	/**
 	 * Flush TX FIFO, used in TX mode.
 	 * 
 	 * Data bytes : 0.
 	 */
-	@Command((byte) 0b11100001)
-	@LengthRange(min = 0, max = 0)
-	public class FLUSH_TX implements SpiCommand {}
+	public static final FlushTxCommand FLUSH_TX = new FlushTxCommand(); 
+
+	public static class FlushTxCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b11100001; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "FLUSH_TX"; }
+
+	}
 
 	/**
 	 * Flush RX FIFO, used in RX mode.
@@ -103,9 +242,27 @@ public class SpiCommands {
 	 * 
 	 * Data bytes : 0.
 	 */
-	@Command((byte) 0b11100010)
-	@LengthRange(min = 0, max = 0)
-	public class FLUSH_RX implements SpiCommand {}
+	public static final FlushRxCommand FLUSH_RX = new FlushRxCommand(); 
+
+	public static class FlushRxCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b11100010; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "FLUSH_RX"; }
+
+	}
 
 	/**
 	 * Used for a PTX device.
@@ -115,9 +272,27 @@ public class SpiCommands {
 	 * 
 	 * Data bytes : 0.
 	 */
-	@Command((byte) 0b11100011)
-	@LengthRange(min = 0, max = 0)
-	public class REUSE_TX_PL implements SpiCommand {}
+	public static final ReuseTxPlCommand REUSE_TX_PL = new ReuseTxPlCommand(); 
+
+	public static class ReuseTxPlCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b11100011; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "REUSE_TX_PL"; }
+
+	}
 
 	/**
 	 * Read RX payload width for the top R_RX_PAYLOAD in the RX FIFO.
@@ -127,9 +302,27 @@ public class SpiCommands {
 	 * 
 	 * Note: The bits in the FEATURE register have to be set.
 	 */
-	@Command(0b01100000)
-	@LengthRange(min = 1, max = 1)
-	public class R_RX_PL_WID implements SpiCommand {};
+	public static final RRxPlWidCommand R_RX_PL_WID = new RRxPlWidCommand(); 
+
+	public static class RRxPlWidCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return 0b01100000; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "R_RX_PL_WID"; }
+
+	};
 
 	/**
 	 * Used in RX mode.
@@ -143,9 +336,27 @@ public class SpiCommands {
 	 * 
 	 * Note: The bits in the FEATURE register have to be set.
 	 */
-	@Command((byte) 0b10101000)
-	@LengthRange(min = 1, max = 32)
-	public class W_ACK_PAYLOAD implements SpiCommand {};
+	public static final WAckPayloadCommand W_ACK_PAYLOAD = new WAckPayloadCommand(); 
+
+	public static class WAckPayloadCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b10101000; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 32; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "W_ACK_PAYLOAD"; }
+
+	};
 
 	/**
 	 * Used in TX mode. Disables AUTOACK on this specific packet.
@@ -154,17 +365,53 @@ public class SpiCommands {
 	 * 
 	 * Note: The bits in the FEATURE register have to be set.
 	 */
-	@Command((byte) 0b10110000)
-	@LengthRange(min = 1, max = 32)
-	public class W_TX_PAYLOAD_NOACK implements SpiCommand {}
+	public static final WTxPayloadNoackCommand W_TX_PAYLOAD_NOACK = new WTxPayloadNoackCommand(); 
+
+	public static class WTxPayloadNoackCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b10110000; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 1; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 32; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "W_TX_PAYLOAD_NOACK"; }
+
+	}
 
 	/**
 	 * No Operation. Might be used to read the STATUS register.
 	 * 
 	 * Data bytes : 0.
 	 */
-	@Command((byte) 0b11111111)
-	@LengthRange(min = 0, max = 0)
-	public class NOP implements SpiCommand {}
+	public static final NopCommand NOP = new NopCommand(); 
+
+	public static class NopCommand implements SpiCommand {
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getCommand() { return (byte) 0b11111111; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMinLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public byte getDataMaxLength() { return 0; }
+
+		/** {@inheritDoc} */
+		@Override
+		public String getName() { return "NOP"; }
+
+	}
 
 }

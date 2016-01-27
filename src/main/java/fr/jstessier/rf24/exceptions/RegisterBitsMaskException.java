@@ -27,10 +27,7 @@ public class RegisterBitsMaskException extends RF24RuntimeException {
 
 	private static final long serialVersionUID = -692171224533558703L;
 
-	/** The name of the register. */
-	private final String registerName;
-
-	/** The name of the bit(s) in the register. */
+	/** The name of the bit(s). */
 	private final String bitsName;
 
 	/** The bit(s) mask in the register. */
@@ -42,14 +39,12 @@ public class RegisterBitsMaskException extends RF24RuntimeException {
 	/**
 	 * Constructor.
 	 * 
-	 * @param registerName	The name of the register.
 	 * @param bitsName		The name of the bit(s) in the register.
 	 * @param bitsValue		The bit(s) mask in the register.
 	 * @param bitsMask		The bit(s) value.
 	 */
-	public RegisterBitsMaskException(String registerName, String bitsName, byte bitsValue, byte bitsMask) {
+	public RegisterBitsMaskException(String bitsName, byte bitsValue, byte bitsMask) {
 		super();
-		this.registerName = registerName;
 		this.bitsName = bitsName;
 		this.bitsValue = bitsValue;
 		this.bitsMask = bitsMask;
@@ -60,8 +55,8 @@ public class RegisterBitsMaskException extends RF24RuntimeException {
 	 */
 	@Override
 	public String getLocalizedMessage() {
-		final StringBuilder message = new StringBuilder().append("Bits ").append(bitsName).append(" in register ")
-				.append(registerName).append(" - The bits value is not compatible with bits mask (value=")
+		final StringBuilder message = new StringBuilder().append("Bits ").append(bitsName)
+				.append(" - The bits value is not compatible with bits mask (value=")
 				.append(bitsValue).append(", mask=").append(bitsMask).append(")");
 		return message.toString();
 	}

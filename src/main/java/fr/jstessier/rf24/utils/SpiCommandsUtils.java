@@ -21,10 +21,7 @@ package fr.jstessier.rf24.utils;
 
 import fr.jstessier.rf24.Registers.Register;
 import fr.jstessier.rf24.SpiCommands.SpiCommand;
-import fr.jstessier.rf24.SpiCommands.SpiCommandReadWrite;
-import fr.jstessier.rf24.annotations.Command;
-import fr.jstessier.rf24.annotations.LengthRange;
-import fr.jstessier.rf24.annotations.Mask;
+import fr.jstessier.rf24.SpiCommands.SpiCommandReadWriteRegister;
 import fr.jstessier.rf24.exceptions.SpiCommandRequestLengthException;
 
 /**
@@ -47,8 +44,8 @@ public class SpiCommandsUtils {
 	 * @param spiCommand	The SpiCommand.
 	 * @return	The command value.
 	 */
-	public static byte getSpiCommand(final Class<? extends SpiCommand> spiCommand) {
-		return spiCommand.getAnnotation(Command.class).value();
+	public static byte getSpiCommand(final SpiCommand spiCommand) {
+		return spiCommand.getCommand();
 	}
 
 	/**
@@ -58,9 +55,8 @@ public class SpiCommandsUtils {
 	 * @param register		The register.
 	 * @return	The command value.
 	 */
-	public static byte getSpiCommand(final Class<? extends SpiCommandReadWrite> spiCommand, 
-			final Class<? extends Register> register) {
-		return getSpiCommand(spiCommand, RegistersUtils.getRegisterAddress(register));
+	public static byte getSpiCommand(final SpiCommandReadWriteRegister spiCommand, final Register register) {
+		return getSpiCommand(spiCommand, register.getAddress());
 	}
 
 	/**
@@ -70,26 +66,15 @@ public class SpiCommandsUtils {
 	 * @param registerAddress	The register address.
 	 * @return	The command value.
 	 */
-	public static byte getSpiCommand(final Class<? extends SpiCommandReadWrite> spiCommand, final byte registerAddress) {
-		final byte mask = spiCommand.getAnnotation(Mask.class).value();
-		final byte command = spiCommand.getAnnotation(Command.class).value();
-		return (byte) (command | (byte) (mask & registerAddress));
+	public static byte getSpiCommand(final SpiCommandReadWriteRegister spiCommand, final byte registerAddress) {
+		return (byte) (spiCommand.getBaseCommand() | (byte) (spiCommand.getCommandRegisterMask() & registerAddress));
 	}
 
-	public static byte getDataMinLength(final Class<? extends SpiCommand> spiCommand) {
-		return spiCommand.getAnnotation(LengthRange.class).min();
-	}
-
-	public static byte getDataMaxLength(final Class<? extends SpiCommand> spiCommand) {
-		return spiCommand.getAnnotation(LengthRange.class).max();
-	}
-
-	public static void checkDataLength(final Class<? extends SpiCommand> spiCommand, final byte... data) {
+	public static void checkDataLength(final SpiCommand spiCommand, final byte... data) {
 		int requestLength = (data == null) ? 0 : data.length;
-		byte minRequestLength = getDataMinLength(spiCommand);
-		byte maxRequestLength = getDataMaxLength(spiCommand);
-		if (requestLength < minRequestLength || requestLength > maxRequestLength) {
-			throw new SpiCommandRequestLengthException(spiCommand.getSimpleName(), requestLength, minRequestLength, maxRequestLength);
+		if (requestLength < spiCommand.getDataMinLength() || requestLength > spiCommand.getDataMaxLength()) {
+			throw new SpiCommandRequestLengthException(spiCommand.getName(), requestLength, 
+					spiCommand.getDataMinLength(), spiCommand.getDataMaxLength());
 		}
 	}
 

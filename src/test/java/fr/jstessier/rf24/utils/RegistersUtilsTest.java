@@ -22,8 +22,7 @@ package fr.jstessier.rf24.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import fr.jstessier.rf24.Registers.CONFIG;
-import fr.jstessier.rf24.Registers.SETUP_RETR;
+import fr.jstessier.rf24.Registers;
 
 /**
  * Tests for RegistersUtils.
@@ -35,26 +34,26 @@ public class RegistersUtilsTest {
 	@Test
 	public void updateRegisterBits_with_bits() {
 
-		byte updatedValue = RegistersUtils.updateRegisterBits(SETUP_RETR.class, (byte) 0b00010101, SETUP_RETR.ARD.class, (byte) 0b0001);
+		byte updatedValue = RegistersUtils.updateRegisterBits((byte) 0b00010101, Registers.SETUP_RETR.ARD, (byte) 0b0001);
 		Assert.assertEquals((byte) 0b00010101, updatedValue);
 
-		updatedValue = RegistersUtils.updateRegisterBits(SETUP_RETR.class, (byte) 0b01110101, SETUP_RETR.ARD.class, (byte) 0b0001);	
+		updatedValue = RegistersUtils.updateRegisterBits((byte) 0b01110101, Registers.SETUP_RETR.ARD, (byte) 0b0001);	
 		Assert.assertEquals((byte) 0b00010101, updatedValue);
 
-		updatedValue = RegistersUtils.updateRegisterBits(SETUP_RETR.class, (byte) 0b00000101, SETUP_RETR.ARD.class, (byte) 0b1111);
+		updatedValue = RegistersUtils.updateRegisterBits((byte) 0b00000101, Registers.SETUP_RETR.ARD, (byte) 0b1111);
 		Assert.assertEquals((byte) 0b11110101, updatedValue);
 
-		updatedValue = RegistersUtils.updateRegisterBits(SETUP_RETR.class, (byte) 0b00000101, SETUP_RETR.ARC.class, (byte) 0b1111);
+		updatedValue = RegistersUtils.updateRegisterBits((byte) 0b00000101, Registers.SETUP_RETR.ARC, (byte) 0b1111);
 		Assert.assertEquals((byte) 0b00001111, updatedValue);
 	}
 
 	@Test
 	public void updateRegisterBits_with_bit() {
 
-		byte updatedValue = RegistersUtils.updateRegisterBits(CONFIG.class, (byte) 0b01000000, CONFIG.MASK_RX_DR.class, (byte) 0b1);
+		byte updatedValue = RegistersUtils.updateRegisterBits((byte) 0b01000000, Registers.CONFIG.MASK_RX_DR, (byte) 0b1);
 		Assert.assertEquals((byte) 0b01000000, updatedValue);
 
-		updatedValue = RegistersUtils.updateRegisterBits(CONFIG.class, (byte) 0b01001000, CONFIG.MASK_RX_DR.class, (byte) 0b0);
+		updatedValue = RegistersUtils.updateRegisterBits((byte) 0b01001000, Registers.CONFIG.MASK_RX_DR, (byte) 0b0);
 		Assert.assertEquals((byte) 0b00001000, updatedValue);
 	}
 

@@ -21,6 +21,8 @@ package fr.jstessier;
 
 import fr.jstessier.rf24.RF24;
 import fr.jstessier.rf24.enums.DataPipe;
+import fr.jstessier.rf24.enums.DataRates;
+import fr.jstessier.rf24.enums.OutputPower;
 import fr.jstessier.rf24.exceptions.RF24Exception;
 import fr.jstessier.rf24.hardware.RF24HardwarePi4j;
 import fr.jstessier.rf24.utils.BytesUtils;
@@ -51,6 +53,7 @@ public class PingPairDyn {
 	private static void pingOutWithAckPayload() throws RF24Exception {
 		RF24 rf24 = new RF24(new RF24HardwarePi4j((byte) 0, (byte) 3));
 		rf24.initialize();
+		rf24.setDataRatesAndOutputPower(DataRates.DR_250_KBPS, OutputPower.RF_0_DBM);
 
 		rf24.openWritingPipe(new byte[] { (byte) 0xD2, (byte) 0xF2, (byte) 0xF2, (byte) 0xF2, (byte) 0xF2 });
 		rf24.openReadingPipe(DataPipe.P1, new byte[] { (byte) 0xD1, (byte) 0xF1, (byte) 0xF1, (byte) 0xF1, (byte) 0xF1 });

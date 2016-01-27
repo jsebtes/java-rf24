@@ -19,12 +19,13 @@ package fr.jstessier.rf24.utils;
  * along with java-rf24. If not, see <http://www.gnu.org/licenses/lgpl-3.0.html>.
  */
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import fr.jstessier.rf24.Registers;
 import fr.jstessier.rf24.SpiCommands;
+import fr.jstessier.rf24.exceptions.SpiCommandRequestLengthException;
 
 /**
  * Tests for SpiCommandsUtils.
@@ -35,27 +36,37 @@ public class SpiCommandsUtilsTest {
 
 	@Test
 	public void getSpiCommand_for_standard_command() {
-		assertEquals((byte) 0b01100001, SpiCommandsUtils.getSpiCommand(SpiCommands.R_RX_PAYLOAD.class));
+		assertEquals((byte) 0b01100001, SpiCommandsUtils.getSpiCommand(SpiCommands.R_RX_PAYLOAD));
 	}
 
 	@Test
 	public void getSpiCommand_for_registers_by_class() {
-		assertEquals((byte) 0b00100001, SpiCommandsUtils.getSpiCommand(SpiCommands.W_REGISTER.class, Registers.EN_AA.class));
+		assertEquals((byte) 0b00100001, SpiCommandsUtils.getSpiCommand(SpiCommands.W_REGISTER, Registers.EN_AA));
 	}
 
 	@Test
 	public void getSpiCommand_for_registers_by_address() {
-		assertEquals((byte) 0b00100010, SpiCommandsUtils.getSpiCommand(SpiCommands.W_REGISTER.class, (byte) 0x02));
+		assertEquals((byte) 0b00100010, SpiCommandsUtils.getSpiCommand(SpiCommands.W_REGISTER, (byte) 0x02));
 	}
 
 	@Test
-	public void getDataMinLength_for_standard_command() {
-		assertEquals(1, SpiCommandsUtils.getDataMinLength(SpiCommands.R_RX_PAYLOAD.class));
+	public void checkDataLength_min_include_OK() {
+		SpiCommandsUtils.checkDataLength(SpiCommands.R_RX_PAYLOAD, new byte[1]);
+	}
+	
+	@Test
+	public void checkDataLength_max_include_OK() {
+		SpiCommandsUtils.checkDataLength(SpiCommands.R_RX_PAYLOAD, new byte[32]);
 	}
 
-	@Test
-	public void getRequestMaxLength_for_standard_command() {
-		assertEquals(32, SpiCommandsUtils.getDataMaxLength(SpiCommands.R_RX_PAYLOAD.class));
+	@Test(expected = SpiCommandRequestLengthException.class)
+	public void checkDataLength_min_KO() {
+		SpiCommandsUtils.checkDataLength(SpiCommands.R_RX_PAYLOAD, new byte[0]);
+	}
+	
+	@Test(expected = SpiCommandRequestLengthException.class)
+	public void checkDataLength_max_KO() {
+		SpiCommandsUtils.checkDataLength(SpiCommands.R_RX_PAYLOAD, new byte[33]);
 	}
 
 }
