@@ -3,3 +3,4 @@
 /bin/
 /.settings/
 /.classpath
+/dependency-reduced-pom.xml
